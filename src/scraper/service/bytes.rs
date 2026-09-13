@@ -27,15 +27,13 @@ pub(crate) fn is_split_tag_prefix(tail: &[u8]) -> bool {
     const CANDIDATES: &[&[u8]] = &[b"<meta", b"<title", b"</title", b"</head", b"<head"];
 
     // Both sides lowered per byte: no allocation on this hot path
-    !tail.is_empty() && CANDIDATES.iter().any(|candidate| {
-        candidate.len() >= tail.len()
-            && candidate[..tail.len()]
-                .iter()
-                .zip(tail.iter())
-                .all(|(candidate_byte, tail_byte)| {
-                    candidate_byte.eq_ignore_ascii_case(tail_byte)
-                })
-    })
+    !tail.is_empty()
+        && CANDIDATES.iter().any(|candidate| {
+            candidate.len() >= tail.len()
+                && candidate[..tail.len()].iter().zip(tail.iter()).all(
+                    |(candidate_byte, tail_byte)| candidate_byte.eq_ignore_ascii_case(tail_byte),
+                )
+        })
 }
 
 pub(crate) fn trailing_prefix_len(buffer: &[u8]) -> usize {

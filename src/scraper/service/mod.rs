@@ -7,19 +7,20 @@ mod scanner;
 
 use async_trait::async_trait;
 use derive_new::new;
+use fetcher::fetch_validated;
+use guards::{ensure_html, ensure_size, ensure_success};
+use scanner::OpengraphHtmlScanner;
 use tracing::debug;
+
 use crate::scraper::{
     domain::{Opengraph, OpengraphDescription, OpengraphImage, OpengraphTitle, ScrapeError},
     port::OpengraphScraperPort,
 };
-use fetcher::fetch_validated;
-use guards::{ensure_html, ensure_size, ensure_success};
-use scanner::OpengraphHtmlScanner;
 
 #[derive(new)]
 pub struct OpengraphScraperService {
     http_client: reqwest::Client,
-    dns_pins: crate::core::dns::PinnedDns,
+    dns_pins: crate::scraper::dns::PinnedDns,
 }
 
 #[async_trait]

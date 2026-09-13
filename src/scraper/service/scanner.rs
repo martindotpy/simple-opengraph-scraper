@@ -1,14 +1,19 @@
-use super::{
-    bytes::{
-        find_byte, find_insensitive, is_split_tag_prefix, starts_with_insensitive, trailing_prefix_len,
-    },
-    entities::decode_entities,
-    fetcher::map_fetch_error,
-    meta::{Field, parse_meta},
-};
-use crate::scraper::domain::ScrapeError;
 use std::time::Duration;
+
 use tracing::warn;
+
+use crate::scraper::{
+    domain::ScrapeError,
+    service::{
+        bytes::{
+            find_byte, find_insensitive, is_split_tag_prefix, starts_with_insensitive,
+            trailing_prefix_len,
+        },
+        entities::decode_entities,
+        fetcher::map_fetch_error,
+        meta::{Field, parse_meta},
+    },
+};
 
 /// Safety cap
 pub(crate) const MAX_BYTES: u64 = 512 * 1024;

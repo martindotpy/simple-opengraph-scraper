@@ -1,7 +1,4 @@
-use super::{
-    bytes::bytes_equal_insensitive,
-    entities::decode_entities,
-};
+use super::{bytes::bytes_equal_insensitive, entities::decode_entities};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub(crate) enum Field {

@@ -1,5 +1,3 @@
-use crate::core::url_guard::DeniedUrlError;
-use crate::scraper::domain::ScrapeError;
 use aide::{
     OperationOutput,
     generate::GenContext,
@@ -145,36 +143,6 @@ impl Problem {
             "Unexpected internal error",
             None,
         )
-    }
-}
-
-impl From<DeniedUrlError> for Problem {
-    fn from(error: DeniedUrlError) -> Self {
-        match error {
-            DeniedUrlError::InvalidUrl => Problem::unprocessable("url must be a valid URL"),
-            DeniedUrlError::NotHttp => Problem::unprocessable("only http/https urls are allowed"),
-            DeniedUrlError::Credentials => {
-                Problem::unprocessable("url must not contain credentials")
-            }
-            DeniedUrlError::ForbiddenPort => Problem::unprocessable("url port is not allowed"),
-            DeniedUrlError::ForbiddenHost => Problem::unprocessable("url host is not allowed"),
-            DeniedUrlError::Unresolvable => {
-                Problem::unprocessable("url host could not be resolved")
-            }
-        }
-    }
-}
-
-impl From<ScrapeError> for Problem {
-    fn from(error: ScrapeError) -> Self {
-        match error {
-            ScrapeError::Denied(url_guard_error) => url_guard_error.into(),
-            ScrapeError::Upstream => Problem::bad_gateway("failed to fetch url"),
-            ScrapeError::UnsupportedMedia => Problem::unsupported_media(),
-            ScrapeError::TooLarge => Problem::payload_too_large(),
-            ScrapeError::Timeout => Problem::gateway_timeout(),
-            ScrapeError::Unexpected => Problem::unexpected(),
-        }
     }
 }
 

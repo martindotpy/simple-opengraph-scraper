@@ -1,10 +1,9 @@
-use crate::{
-    core::{dns::PinnedDns, url_guard},
-    scraper::domain::ScrapeError,
-};
 use std::sync::atomic::{AtomicUsize, Ordering};
+
 use tracing::warn;
 use url::Url;
+
+use crate::scraper::{dns::PinnedDns, domain::ScrapeError, url as url_guard};
 
 const MAX_REDIRECTS: u8 = 3;
 

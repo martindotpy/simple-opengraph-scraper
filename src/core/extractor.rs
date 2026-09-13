@@ -1,4 +1,3 @@
-use crate::core::problem::{HttpProblem, HttpValidationProblem, Problem, Violation};
 use aide::{
     OperationInput,
     generate::GenContext,
@@ -14,6 +13,8 @@ use schemars::JsonSchema;
 use serde::de::DeserializeOwned;
 use tracing::warn;
 
+use crate::core::problem::{HttpProblem, HttpValidationProblem, Problem, Violation};
+
 // Extractor
 pub struct ValidJson<T>(pub T);
 
@@ -26,13 +27,11 @@ where
     type Rejection = Problem;
 
     async fn from_request(req: Request, state: &S) -> Result<Self, Self::Rejection> {
-        let Json(value) = Json::<T>::from_request(req, state)
-            .await
-            .map_err(|error| {
-                warn!(error = %error, "rejected malformed json");
+        let Json(value) = Json::<T>::from_request(req, state).await.map_err(|error| {
+            warn!(error = %error, "rejected malformed json");
 
-                Problem::bad_json(error.to_string())
-            })?;
+            Problem::bad_json(error.to_string())
+        })?;
 
         value.validate().map_err(|report| {
             warn!(error = %report, "rejected invalid body");

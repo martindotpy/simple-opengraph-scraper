@@ -1,5 +1,10 @@
 {
     // Rust
+    "[rust]": {
+        "editor.defaultFormatter": "rust-lang.rust-analyzer",
+        "editor.formatOnSave": true
+    },
     "rust-analyzer.check.command": "clippy",
-    "rust-analyzer.check.extraArgs": ["--fix", "--allow-dirty"]
+    "rust-analyzer.check.extraArgs": ["--fix", "--allow-dirty"],
+    "rust-analyzer.rustfmt.extraArgs": ["+nightly"]
 }

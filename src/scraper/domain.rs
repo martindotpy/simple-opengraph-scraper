@@ -1,7 +1,8 @@
-use crate::core::url_guard::DeniedUrlError;
 use derive_new::new;
 use schemars::JsonSchema;
 use serde::Serialize;
+
+use crate::scraper::url::DeniedUrlError;
 
 // Model
 #[derive(Debug, PartialEq, Eq, Serialize, JsonSchema)]

@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-use std::net::IpAddr;
+use std::{collections::HashMap, net::IpAddr};
 
 use reqwest::dns::{Addrs, Name, Resolve, Resolving};
 
-use super::url_guard::{is_blocked_ip, resolve_socket_addresses};
+use crate::scraper::url::{is_blocked_ip, resolve_socket_addresses};
 
 /// DNS resolver serving pre validated IPs: closes the resolve then connect TOCTOU gap.
 #[derive(Clone, Default)]

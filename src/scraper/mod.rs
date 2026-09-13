@@ -1,7 +1,10 @@
 pub mod client;
+pub mod dns;
 pub mod domain;
 pub mod dto;
 pub mod port;
 pub mod router;
 pub mod service;
+pub mod state;
+pub mod url;
 pub mod usecase;

@@ -12,7 +12,7 @@ use tower_http::{
 };
 use tracing::info;
 
-use crate::core::state::ScraperState;
+use crate::scraper::state::ScraperState;
 
 #[tokio::main]
 async fn main() {
@@ -20,12 +20,13 @@ async fn main() {
     core::tracing::init_tracing();
 
     // State
-    let dns_pins = core::dns::PinnedDns::default();
-    let http_client = scraper::client::build_http_client(dns_pins.clone()).unwrap_or_else(|error| {
-        tracing::error!(?error, "failed to build http client");
+    let dns_pins = scraper::dns::PinnedDns::default();
+    let http_client =
+        scraper::client::build_http_client(dns_pins.clone()).unwrap_or_else(|error| {
+            tracing::error!(?error, "failed to build http client");
 
-        std::process::exit(1);
-    });
+            std::process::exit(1);
+        });
     let state = ScraperState {
         http_client,
         dns_pins,

@@ -1,12 +1,10 @@
-use reqwest::{Client, redirect::Policy};
-use std::sync::Arc;
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
-use crate::core::dns::PinnedDns;
+use reqwest::{Client, redirect::Policy};
+
+use crate::scraper::dns::PinnedDns;
 
 // Client
-// Redirects are followed manually so every hop is SSRF-checked and DNS-pinned
-// User-Agent is set per request with Meta crawler rotation (see fetcher)
 pub fn build_http_client(dns: PinnedDns) -> Result<Client, reqwest::Error> {
     Client::builder()
         .timeout(Duration::from_secs(4))
