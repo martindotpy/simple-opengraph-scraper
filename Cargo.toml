@@ -1,0 +1,34 @@
+[package]
+name = "simple-opengraph-scraper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.9"
+tokio = { version = "1.53.1", features = ["full"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+tower-http = { version = "0.7.1", features = ["full"] }
+aide = { git = "https://github.com/tamasfe/aide", features = [
+    "axum",
+    "axum-json",
+] }
+scalar_api_reference = { version = "0.2.2", features = ["axum"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+garde = { version = "0.23.0", features = ["full"] }
+o2o = "0.5.5"
+schemars = "1.2.2"
+tower = { version = "0.5.3", features = ["limit"] }
+reqwest = { version = "0.13.5", features = [
+    "json",
+    "gzip",
+    "brotli",
+    "deflate",
+    "zstd",
+    "hickory-dns",
+] }
+async-trait = "0.1.92"
+derive-new = "0.7.0"
+url = "2.5.8"
+indexmap = "2.14.2"
