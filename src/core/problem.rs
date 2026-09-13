@@ -1,4 +1,5 @@
-use crate::scraper::domain::{DeniedUrl, ScrapeError};
+use crate::core::url_guard::DeniedUrlError;
+use crate::scraper::domain::ScrapeError;
 use aide::{
     OperationOutput,
     generate::GenContext,
@@ -147,15 +148,19 @@ impl Problem {
     }
 }
 
-impl From<DeniedUrl> for Problem {
-    fn from(error: DeniedUrl) -> Self {
+impl From<DeniedUrlError> for Problem {
+    fn from(error: DeniedUrlError) -> Self {
         match error {
-            DeniedUrl::InvalidUrl => Problem::unprocessable("url must be a valid URL"),
-            DeniedUrl::NotHttp => Problem::unprocessable("only http/https urls are allowed"),
-            DeniedUrl::Credentials => Problem::unprocessable("url must not contain credentials"),
-            DeniedUrl::ForbiddenPort => Problem::unprocessable("url port is not allowed"),
-            DeniedUrl::ForbiddenHost => Problem::unprocessable("url host is not allowed"),
-            DeniedUrl::Unresolvable => Problem::unprocessable("url host could not be resolved"),
+            DeniedUrlError::InvalidUrl => Problem::unprocessable("url must be a valid URL"),
+            DeniedUrlError::NotHttp => Problem::unprocessable("only http/https urls are allowed"),
+            DeniedUrlError::Credentials => {
+                Problem::unprocessable("url must not contain credentials")
+            }
+            DeniedUrlError::ForbiddenPort => Problem::unprocessable("url port is not allowed"),
+            DeniedUrlError::ForbiddenHost => Problem::unprocessable("url host is not allowed"),
+            DeniedUrlError::Unresolvable => {
+                Problem::unprocessable("url host could not be resolved")
+            }
         }
     }
 }

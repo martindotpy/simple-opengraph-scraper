@@ -1,3 +1,4 @@
+use crate::core::url_guard::DeniedUrlError;
 use derive_new::new;
 use schemars::JsonSchema;
 use serde::Serialize;
@@ -19,18 +20,8 @@ pub struct Opengraph {
 
 // Error
 #[derive(Debug)]
-pub enum DeniedUrl {
-    InvalidUrl,
-    NotHttp,
-    Credentials,
-    ForbiddenPort,
-    ForbiddenHost,
-    Unresolvable,
-}
-
-#[derive(Debug)]
 pub enum ScrapeError {
-    Denied(DeniedUrl),
+    Denied(DeniedUrlError),
     Upstream,
     UnsupportedMedia,
     TooLarge,
@@ -38,8 +29,8 @@ pub enum ScrapeError {
     Unexpected,
 }
 
-impl From<DeniedUrl> for ScrapeError {
-    fn from(error: DeniedUrl) -> Self {
+impl From<DeniedUrlError> for ScrapeError {
+    fn from(error: DeniedUrlError) -> Self {
         ScrapeError::Denied(error)
     }
 }

@@ -2,11 +2,20 @@ use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 use url::Url;
 
-use crate::scraper::domain::DeniedUrl;
+// Error
+#[derive(Debug)]
+pub enum DeniedUrlError {
+    InvalidUrl,
+    NotHttp,
+    Credentials,
+    ForbiddenPort,
+    ForbiddenHost,
+    Unresolvable,
+}
 
 /// Full check: syntax plus DNS. Returns the URL and its validated IPs for DNS pinning.
-pub async fn validate_public_http_url(raw_url: &str) -> Result<(Url, Vec<IpAddr>), DeniedUrl> {
-    let url = Url::parse(raw_url).map_err(|_| DeniedUrl::InvalidUrl)?;
+pub async fn validate_public_http_url(raw_url: &str) -> Result<(Url, Vec<IpAddr>), DeniedUrlError> {
+    let url = Url::parse(raw_url).map_err(|_| DeniedUrlError::InvalidUrl)?;
 
     validate_http_url(&url)?;
 
@@ -22,20 +31,20 @@ pub async fn validate_public_http_url(raw_url: &str) -> Result<(Url, Vec<IpAddr>
     Ok((url, addresses))
 }
 
-pub fn validate_http_url(url: &Url) -> Result<(), DeniedUrl> {
+pub fn validate_http_url(url: &Url) -> Result<(), DeniedUrlError> {
     if !matches!(url.scheme(), "http" | "https") {
-        return Err(DeniedUrl::NotHttp);
+        return Err(DeniedUrlError::NotHttp);
     }
 
     if !url.username().is_empty() || url.password().is_some() {
-        return Err(DeniedUrl::Credentials);
+        return Err(DeniedUrlError::Credentials);
     }
 
     if let Some(port) = url.port()
         && port != 80
         && port != 443
     {
-        return Err(DeniedUrl::ForbiddenPort);
+        return Err(DeniedUrlError::ForbiddenPort);
     }
 
     validate_host(url.host_str().unwrap_or_default())?;
@@ -47,7 +56,8 @@ pub fn validate_http_url(url: &Url) -> Result<(), DeniedUrl> {
 pub(crate) async fn resolve_socket_addresses(
     host: &str,
 ) -> Result<Vec<std::net::SocketAddr>, std::io::Error> {
-    let addresses: Vec<std::net::SocketAddr> = tokio::net::lookup_host((host, 443)).await?.collect();
+    let addresses: Vec<std::net::SocketAddr> =
+        tokio::net::lookup_host((host, 443)).await?.collect();
 
     if addresses.is_empty() {
         return Err(std::io::Error::other("host resolved to no addresses"));
@@ -57,15 +67,15 @@ pub(crate) async fn resolve_socket_addresses(
 }
 
 /// Resolves and keeps only public IPs: any blocked hit fails the whole host closed.
-pub async fn resolve_public_ips(host: &str) -> Result<Vec<IpAddr>, DeniedUrl> {
+pub async fn resolve_public_ips(host: &str) -> Result<Vec<IpAddr>, DeniedUrlError> {
     let mut addresses = Vec::new();
 
     for socket_address in resolve_socket_addresses(host)
         .await
-        .map_err(|_| DeniedUrl::Unresolvable)?
+        .map_err(|_| DeniedUrlError::Unresolvable)?
     {
         if is_blocked_ip(&socket_address.ip()) {
-            return Err(DeniedUrl::ForbiddenHost);
+            return Err(DeniedUrlError::ForbiddenHost);
         }
 
         addresses.push(socket_address.ip());
@@ -75,17 +85,17 @@ pub async fn resolve_public_ips(host: &str) -> Result<Vec<IpAddr>, DeniedUrl> {
 }
 
 /// Validates the host without allocating.
-fn validate_host(host: &str) -> Result<(), DeniedUrl> {
+fn validate_host(host: &str) -> Result<(), DeniedUrlError> {
     // Hosts from Url::parse are already lowercased (WHATWG URL, special schemes)
     if host.is_empty() || host == "localhost" || host.ends_with(".localhost") {
-        return Err(DeniedUrl::ForbiddenHost);
+        return Err(DeniedUrlError::ForbiddenHost);
     }
 
     // Prevent access to private IP ranges and other reserved addresses
     if let Ok(address) = parse_ip_literal(host)
         && is_blocked_ip(&address)
     {
-        return Err(DeniedUrl::ForbiddenHost);
+        return Err(DeniedUrlError::ForbiddenHost);
     }
 
     Ok(())
@@ -242,26 +252,29 @@ mod tests {
 
         assert!(matches!(
             validate_http_url(&url),
-            Err(DeniedUrl::ForbiddenPort)
+            Err(DeniedUrlError::ForbiddenPort)
         ));
 
         let url = Url::parse("http://user@example.com/").unwrap();
 
         assert!(matches!(
             validate_http_url(&url),
-            Err(DeniedUrl::Credentials)
+            Err(DeniedUrlError::Credentials)
         ));
 
         let url = Url::parse("ftp://example.com/").unwrap();
 
-        assert!(matches!(validate_http_url(&url), Err(DeniedUrl::NotHttp)));
+        assert!(matches!(
+            validate_http_url(&url),
+            Err(DeniedUrlError::NotHttp)
+        ));
     }
 
     #[tokio::test]
     async fn blocks_localhost_dns() {
         assert!(matches!(
             resolve_public_ips("localhost").await,
-            Err(DeniedUrl::ForbiddenHost)
+            Err(DeniedUrlError::ForbiddenHost)
         ));
     }
 }
