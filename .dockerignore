@@ -1,0 +1,6 @@
+*
+
+# Source code
+!Cargo.toml
+!Cargo.lock
+!src/

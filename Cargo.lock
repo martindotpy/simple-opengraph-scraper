@@ -20,7 +20,8 @@ dependencies = [
 [[package]]
 name = "aide"
 version = "0.16.0-alpha.4"
-source = "git+https://github.com/tamasfe/aide#20b303cf6e4a73b4530d1c77179c1114325686f2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "390515b47251185fa076ac92a7a582d9d383b03e13cef0c801e7670cf928229b"
 dependencies = [
  "axum",
  "bytes",
