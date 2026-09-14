@@ -13,7 +13,8 @@ RUN mkdir src && echo 'fn main() {}' > src/main.rs \
     && rm -rf src
 
 COPY src ./src
-RUN cargo build --release --locked \
+RUN find src -type f -exec touch {} + \
+    && cargo build --release --locked \
     && cp target/release/simple-opengraph-scraper /tmp/bin
 
 
