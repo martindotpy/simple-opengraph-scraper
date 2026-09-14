@@ -1,10 +1,5 @@
 # release-plz configuration: https://release-plz.dev/docs/config
 [workspace]
-# Binary crate, never published to crates.io: detect the current version from
-# git tags, skip `cargo publish`, still bump Cargo.toml/Cargo.lock,
-# update CHANGELOG.md and create git tags + GitHub releases.
-# NOTE: do NOT set `publish = false` in Cargo.toml instead of this; that
-# combination is known to break GitHub release creation.
 git_only = true
 git_tag_enable = true
 git_release_enable = true

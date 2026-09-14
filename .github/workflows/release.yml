@@ -18,6 +18,7 @@ jobs:
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       releases: ${{ steps.release.outputs.releases }}
+      tag: ${{ fromJSON(steps.release.outputs.releases)[0].tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -62,7 +63,7 @@ jobs:
       - name: Checkout release tag
         uses: actions/checkout@v7
         with:
-          ref: ${{ fromJSON(needs.release-plz.outputs.releases)[0].tag_name }}
+          ref: ${{ needs.release-plz.outputs.tag }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       - name: Log in to GHCR
@@ -123,8 +124,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=semver,pattern={{version}},value=${{ fromJSON(needs.release-plz.outputs.releases)[0].tag_name }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ fromJSON(needs.release-plz.outputs.releases)[0].tag_name }}
+            type=semver,pattern={{version}},value=${{ needs.release-plz.outputs.tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-plz.outputs.tag }}
             type=raw,value=latest
           flavor: |
             latest=false
